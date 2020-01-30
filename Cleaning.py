@@ -65,7 +65,7 @@ def get_elevation_series(lat_series, long_series, access_token = access_token):
 #~~~~~~~~#
 #Main
 
-if __name__ = "__main__":
+if __name__ == "__main__":
 
 #Filling Training set values
     X_train = read_train()
