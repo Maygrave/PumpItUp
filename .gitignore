@@ -3,3 +3,6 @@ Keys.py
 
 #Data
 Data/
+
+#Checkpoints
+.ipynb_checkpoints/
