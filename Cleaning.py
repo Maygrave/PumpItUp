@@ -23,11 +23,11 @@ def fill_lat_long(data, long_flag, lat_flag):
 
     for i in range(data.shape[0]):
         region = data['region'][i]
-        if data['latitude'][i] == lat_flag:
-            data['latitude'][i] = np.mean(data[data['region'] == region]['latitude'])
+        if data.loc[i, 'latitude'] == lat_flag:
+            data.loc[i, 'latitude'] = np.mean(data[data['region'] == region]['latitude'])
 
-        if data['longitude'][i] == long_flag:
-            data['longitude'][i] = np.mean(data[data['region'] == region]['longitude'])
+        if data.loc[i, 'longitude'] == long_flag:
+            data.loc[i, 'longitude'] = np.mean(data[data['region'] == region]['longitude'])
     return(data)
 
 ##Adding elevation, to supplement "gps_height"
@@ -68,6 +68,7 @@ def get_elevation_series(lat_series, long_series, access_token = access_token):
 if __name__ == "__main__":
 
 #Filling Training set values
+    access_token = access_token
     X_train = read_train()
     X_train = fill_lat_long(X_train, 0, -2.000000e-08)
     X_train['well_elevations'] = get_elevation_series(X_train['latitude'], X_train['longitude'], access_token)
