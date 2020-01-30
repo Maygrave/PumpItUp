@@ -48,7 +48,13 @@ def get_elevation_series(lat_series, long_series, access_token = access_token):
 
     elevations = []
     for i in range(len(lat_series)):
-        elevations.append(get_elevation_single(lat_series[i], long_series[i], access_token))
+        try:
+            elevations.append(get_elevation_single(lat_series[i], long_series[i], access_token))
+        except:
+            try:
+                elevations.append(get_elevation_single(lat_series[i], long_series[i], access_token))
+            except:
+                elevations.append(0)
     return(elevations)
 
 
