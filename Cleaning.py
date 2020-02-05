@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import requests
 from Keys import access_token
+import Settings as Sts
 
 #~~~~~~~~~~#
 #Defining Functions
@@ -57,10 +58,27 @@ def get_elevation_series(lat_series, long_series, access_token = access_token):
                 elevations.append(get_elevation_single(lat_series[i], long_series[i], access_token))
             except:
                 elevations.append(-1)
+
+        if i % 1000 == 0:
+            print(i)
     return(elevations)
 
+#CATEGORICAL FEATURES CLEANING
 
 
+#NUMERICAL FEATURE CLEANING
+##Population
+
+def fill_pop(data):
+
+#Logic:
+#Break up observations by Region > LGA
+
+#Get Pop from census data for specific regions
+
+#Divide pop by number of wells observed in LGA
+
+#Create interpolation flag feature, to mark interp'd pops
 
 
 
@@ -79,7 +97,11 @@ if __name__ == "__main__":
     access_token = access_token
     X_train = read_train()
     X_train = fill_lat_long(X_train, 0, -2.000000e-08)
-    X_train['well_elevations'] = get_elevation_series(X_train['latitude'], X_train['longitude'], access_token)
+
+
+    #This step takes SO LONG. I need to run it somewhere else, although I'll leave it here for reference
+    #Consider doing it piece-wise?
+    #X_train['well_elevations'] = get_elevation_series(X_train['latitude'], X_train['longitude'], access_token)
     write(X_train)
 
 #Filling Testing set values
