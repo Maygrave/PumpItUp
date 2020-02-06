@@ -33,7 +33,7 @@ Geo_info = {
                 'Mazinde' : 22832, 'Dindira' : 12086, 'Mnyuzi' : 19174, 'Mombo' : 17093,
                 'Mkomazi' : 8069, 'Magoma' : 11395, 'Mkalamo' : 8836, 'Kerenge' : 14737, 'Kwagunda' : 8924, 'Bungu' : 14232,
                 'Chekelei' : 8228, 'Makuyuni' : 13180, 'Kwamndolwa' : 5160, # This is in Korogwe Town COuncil
-                'Korogwe' 6394, 'Ngombezi' : 5346, #This aare both in the Town Council
+                'Korogwe' : 6394, 'Ngombezi' : 5346, #This aare both in the Town Council
                 'Vugiri' : 9772, 'Kizara' : 14622, 'Lutindi' : 7840
             }
         },
@@ -76,7 +76,7 @@ Geo_info = {
             "ward" : {
                 'Itetemia' : 4549, 'Kakola' : 3470, 'Tumbi' : 6205, 'Kanyenye' : 10063, 'Misha' : 6234, 'Ipuli' : 23444,
                 'Chemchem' : 19980, 'Isevya' : 13507, 'Ndevelwa' : 8112, 'Mbugani' : 15301, 'Uyui' : 6262, 'Kalunde' : 8113,
-                'Itonjanda' : 2714, 'Kiloleni' : 14213, "Ng'ambo"19702, 'Gongoni' : 8064, 'Tambukareli' : 6783,
+                'Itonjanda' : 2714, 'Kiloleni' : 14213, "Ng'ambo" : 19702, 'Gongoni' : 8064, 'Tambukareli' : 6783,
                 'Malolo' : 3424, 'Kitete' : 9192
             }
         },
@@ -326,7 +326,7 @@ Geo_info = {
             }
         },
         "Itilima" : {
-            "Total_pop" : ,
+            "Total_pop" : 313900,
             "ward" : {
                 'Lagangabilili' : 12909, 'Mbita' : 12623, 'Mwaswale' : 14411, 'Lugulu' : 18328, "Kinang'weli" : 12315, 'Sagata' : 18650,
                  'Chinamili' : 15393, 'Nkoma' : 21450, 'Bumera' : 13861, 'Mwamapalala' : 16091, 'Zagayu' : 14737, 'Mhunze' : 11835
@@ -543,7 +543,8 @@ Geo_info = {
         "Kwimba" : {
             "Total_pop" : 406509,
             "ward" : {
-                'Ngulla' : 12692, 'Maligisu' : 20788, 'Fukalo' : 17534, 'Mwakilyambiti' : 16079, 'Ngudu' 27630, 'Sumve' 16436, 'Mwandu' : 11132, 'Hungumalwa' : 16508, "Ng'hundi" : 9255, 'Mwagi' : 11325, 'Nyamilama' : 7611,
+                'Ngulla' : 12692, 'Maligisu' : 20788, 'Fukalo' : 17534, 'Mwakilyambiti' : 16079, 'Ngudu' : 27630, 'Sumve' : 16436,
+                'Mwandu' : 11132, 'Hungumalwa' : 16508, "Ng'hundi" : 9255, 'Mwagi' : 11325, 'Nyamilama' : 7611,
                 'Igongwa' : 11705, 'Nyambiti' : 13731, 'Mantare' : 11599, 'Bupamwa' : 17366, 'Mwamala' : 10582, 'Wala' : 17190,
                 'Lyoma' : 12561, 'Malya' : 15437, 'Iseni' : 10349, 'Bungulwa' : 10361, "Mwang'halanga" : 11099, 'Mwabomba' : 10096,
                 'Mhande' : 19629, 'Kikubiji' : 22032
@@ -566,7 +567,7 @@ Geo_info = {
     "Mtwara" : {
         "Nanyumbu" : {
             "Total_pop" : 150857,
-            "ward" {
+            "ward" : {
                 'Nanyumbu' : 10826, 'Maratani' : 6668, 'Lemasule' : 7656, #This should be spelled "Lumesule"
                 'Napacho' : 10092, 'Masuguru' : 5945,
                 'Mikangaula' : 16848, 'Nandete' : 10067, 'Likokona' : 18629, 'Sengenya' : 13479, 'Chipuputa' : 9926,
@@ -749,7 +750,7 @@ Geo_info = {
         "Serengeti" : {
             "Total_pop" : 249420,
             "ward" : {
-                'Natta'12849, 'Manchira' : 7888, 'Kebanchabancha' : 8241, 'Kenyamonta' : 11336, 'Nyambureti' : 14158,
+                'Natta' : 12849, 'Manchira' : 7888, 'Kebanchabancha' : 8241, 'Kenyamonta' : 11336, 'Nyambureti' : 14158,
                 'Ikoma' : 6502, "Ring'wani" : 8785, 'Nyamoko' : 8237, 'Kisangura' : 8506, 'Issenye' : 10161,
                 'Nyamatare' : 5476, 'Machochwe' : 9871, "Rung'bure" : 9698, 'Rigicha' : 9465, 'Kisaka' : 12534,
                 'Mugumu Urban' : 10226, 'Kyambahi' : 7022, 'Busawe' : 5532
@@ -943,8 +944,8 @@ Geo_info = {
         },
         "Rombo" : {
             "Total_pop" : 260963,
-            "ward" {
-                'Mengwe Manda' 9317: , #I think this is both mengwe and manda combined? I'll have the tops pops combined for now
+            "ward" : {
+                'Mengwe Manda' : 9317, #I think this is both mengwe and manda combined? I'll have the tops pops combined for now
                 'Kitirima Kingachi' : 18420, 'Olele' : 6723, 'Keni Mengeni' : 8719,
                 'Mamsera' : 9935, 'Mahida Holili' : 7980, #I think this is Mahida
                 'Kisale Msangara' : 10048, 'Katangara Mrere' : 11642,
@@ -966,7 +967,7 @@ Geo_info = {
             "ward" : {
                 'Masama Mashariki' : 25723, 'Machame Magharibi' : 6503, 'Machame Kaskazini' : 23334,
                 'Machame Uroki' : 10762, 'Masama Magharibi' : 10851, 'Hai Urban' : 34098,
-                'Machame Mashariki' 13084, 'Masama Kusini' : 12060, 'Masama Rundugai' : 14033,
+                'Machame Mashariki' : 13084, 'Masama Kusini' : 12060, 'Masama Rundugai' : 14033,
                 'Machame Kusini' : 13572
             }
         },
@@ -1078,7 +1079,7 @@ Geo_info = {
         "Bukoba Urban" : {
             "Total_pop" : 128796,
             "ward" : {
-                'Kibeta' 8088, 'Nyanga' : 3129, 'Bukembe' : 4042, #This is Buhembe
+                'Kibeta' : 8088, 'Nyanga' : 3129, 'Bukembe' : 4042, #This is Buhembe
                 'Kahororo' : 6618, 'Nishambya' : 9020, #This is Nshambya
                 'Kagondo' : 4170,
                 'Kitendaguru' : 5672, 'Ijunganyondo' : 2591
@@ -1202,7 +1203,7 @@ Geo_info = {
             "ward" : {
                 'Dabalo' : 16115, 'Manchali' : 10485, 'Mvumi Mission' : 16514, 'Mphwayungu' : 12634, 'Muungano' : 10745,
                 'Huzi' : 7589, 'Majeleko' : 6886, 'Segala' : 12791, 'Mvumi Makulu' : 7460, 'Itiso' : 12636, 'Idifu' : 9609,
-                'Msamalo' : 14142, "Makang'wa" : 20337, 'Manzase' : 11485, 'Chilionwa' : 5,216, 'Igandu' : 14880, 'Haneti' : 13128,
+                'Msamalo' : 14142, "Makang'wa" : 20337, 'Manzase' : 11485, 'Chilionwa' : 5216, 'Igandu' : 14880, 'Haneti' : 13128,
                 'Ikowa' : 6325, 'Mlowa Bwawani' : 9031, 'Iringa Mvumi' : 11313, 'Manda' : 9874, 'Handali' : 9854,
                 'Nghambaku' : 7339, 'Membe' : 8726, 'Fufu' : 3469, 'Chinugulu' : 5216
             }

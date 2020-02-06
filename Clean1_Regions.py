@@ -18,6 +18,12 @@ def write(X_train, file = "Train1.csv"):
 
 ##Regions
 def update_regions(data):
+    #The location data for this set is pretty unreliable
+    #I've updated the regions/discticts in the data based on the names of the wards in which the observations were located
+    #These were often unique, esppecially within regions, so I've relatively certain that these are acurate
+    #I didn't fix spellings thus far, although they are noted in the Settings file
+    #As I'm hoping the the errors are at least consistent accross the training and testing sets
+
     #Add simiyu, geita, katavi, njombe regions
     ##Simiyu
     simiyu_index = data[(data['region'] == 'Shinyanga') & ((data['lga'].isin(["Maswa","Meatu","Bariadi"]))].index
@@ -137,7 +143,91 @@ def update_regions(data):
     mbongwe_index = data[(data['region'] == 'Geita') & (data['lga'] == 'Bukombe') & (data['ward'].isin(['Mbogwe', 'Ushirika', 'Masumbwe', 'Nyasato', 'Lugunga', 'Ilolangulu', 'Ikunguigazi', 'Iponya']))].index
     data.loc[mbongwe_index, 'lga'] = 'Mbongwe'
 
+    return(data)
+
+#Population
+def fill_pop(data, train_data):
+    #Filling the population values equal to 0
+    for i in range(data.shape[0]):
+        if data['population'][i] == 0:
+            #Getting the pop of the ward for the obs
+            region = data['region'][i]
+            dist = data['lga'][i]
+            ward_name = data['ward'][i]
+            pop = Sts.Geo_info[region][dist]['ward'][ward_name]
+
+            #Getting the number of wards in the Region/District
+            count = len(train_data[(train_data['region'] == region) & (train_data['lga'] == dist) & (train_data['ward'] == ward_name)])
+
+            #Population divided by the number of wells in the ward
+            pop_ward = pop/count
+            #Set pop value to average pop and create flag for interpolated pop
+            data.loc[i, 'population'] = pop_ward
+            data['Interped_pop'] = True
+        else:
+            #Set Interped_pop flag to false
+            data['Interped_pop'] = False
+
+#Amount_tsh
+def fill_amount_tsh(data, train_data):
+    #Filling based on the mean value of the Wards
+    #if the ward is 0 then by the district
+    #If district is 0 then leave 0, as these are far enough apart, I don't think they should be filled across regions
+    means_wards = train_data[train_data['amount_tsh'] > 0]['amount_tsh'].groupby([train_data['region'], train_data['lga'], train_data['ward']]).describe()
+    means_lga = train_data[train_data['amount_tsh'] > 0]['amount_tsh'].groupby([train_data['region'], train_data['lga']]).describe()
+    for i in range(data.shape[0]):
+        if data['amount_tsh'][i] == 0:
+            try:
+                #Need the try, as there are entire regions with no amount_tsh values
+                #So these regions would raise a key error if passed to the group objects
+                if means_wards.loc[data['region'][i], data['lga'][i], data['ward'][i]][mean] != 0:
+                    data.loc[i, 'amount_tsh'] = means_wards.loc[data['region'][i], data['lga'][i], data['ward'][i]][mean]
+                elif means_lga.loc[data['region'][i], data['lga'][i]][mean] != 0:
+                        data.loc[i, 'amount_tsh'] = means_lga.loc[data['region'][i], data['lga'][i]][mean]
+                else:
+                    #Leave as zero when there are no observed values for the enntire District
+                    pass
+            except:
+                try:
+                    if means_lga.loc[data['region'][i], data['lga'][i]][mean] != 0:
+                        data.loc[i, 'amount_tsh'] = means_lga.loc[data['region'][i], data['lga'][i]][mean]
+                    else:
+                        #Leave as zero when there are no observed values for the enntire District
+                        pass
+                except:
+                    pass
+    return(data)
+
+#Lat and Long
+def fill_lat_long(data, long_flag, lat_flag):
+    #This function will fill the flagged lats/longs
+    #with the average of the region those values belong to
+    means_lat = data[data['latitude'] < -0.001]['latitude'].groupby(data['region']).mean()
+    means_long = data[data['longitude'] > 0]['longitude'].groupby(data['region']).mean()
+
+    for i in range(data.shape[0]):
+        region = data['region'][i]
+        if data.loc[i, 'latitude'] == lat_flag:
+            data.loc[i, 'latitude'] = means_lat[region]
+
+        if data.loc[i, 'longitude'] == long_flag:
+            data.loc[i, 'longitude'] = means_long[region]
+    return(data)
+
+
 
 #~~~~~~~~~#
 
 if __name__ == "__main__":
+#Import Data
+
+#Order of Cleaning:
+#Step 1: Update Regions
+
+#Step 2: Fill Numerical Missings
+
+#Step 3: Fill Lat/Long
+
+#Step 4: Handle Categorical Missings
+
+#Save Data

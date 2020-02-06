@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import requests
 from Keys import access_token
-import Settings as Sts
 
 #~~~~~~~~~~#
 #Defining Functions
@@ -15,23 +14,6 @@ def read_train():
 
 def write(X_train, file = "Train.csv"):
     X_train.to_csv("Data/Processed/{}".format(file))
-
-#LATITUDE/LONGTITUDE CLEANING
-##Filling Empty Lat/long
-def fill_lat_long(data, long_flag, lat_flag):
-    #This function will fill the flagged lats/longs
-    #with the average of the region those values belong to
-    means_lat = data[data['latitude'] < -0.001]['latitude'].groupby(data['region']).mean()
-    means_long = data[data['longitude'] > 0]['longitude'].groupby(data['region']).mean()
-
-    for i in range(data.shape[0]):
-        region = data['region'][i]
-        if data.loc[i, 'latitude'] == lat_flag:
-            data.loc[i, 'latitude'] = means_lat[region]
-
-        if data.loc[i, 'longitude'] == long_flag:
-            data.loc[i, 'longitude'] = means_long[region]
-    return(data)
 
 ##Adding elevation, to supplement "gps_height"
 def get_elevation_single(lat, long, access_token = access_token):
@@ -63,32 +45,7 @@ def get_elevation_series(lat_series, long_series, access_token = access_token):
             print(i)
     return(elevations)
 
-#CATEGORICAL FEATURES CLEANING
-
-
-#NUMERICAL FEATURE CLEANING
-##Population
-
-def fill_pop(data):
-
-#Logic:
-#Break up observations by Region > LGA
-
-#Get Pop from census data for specific regions
-
-#Divide pop by number of wells observed in LGA
-
-#Create interpolation flag feature, to mark interp'd pops
-
-
-
-
-
-
-
-
-
-#~~~~~~~~#
+#~~~~~~~#
 #Main
 
 if __name__ == "__main__":
