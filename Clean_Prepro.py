@@ -1,7 +1,8 @@
 import os
 import pandas as pd
 import numpy as np
-import requests
+from sklearn.preprocessing import LabelEncoder
+
 from Keys import access_token
 import Settings as Sts
 
@@ -214,12 +215,66 @@ def fill_lat_long(data, long_flag, lat_flag):
             data.loc[i, 'longitude'] = means_long[region]
     return(data)
 
+#Date vars
+def as_dates(data):
+    data.date_recorded = pd.to_datetime(data.date_recorded)
 
+#Drop unwanted columns
+def drop_cols(data, drop_list):
+    data.drop(axis = 1, columns = drop_list, inplace = True)
+
+#Categorical Features:
+def get_cats(data):
+    #List of Categorical Features
+
+    cat_feats = []
+    for feat in data.dtypes.index:
+        if data[feat].dtype == "object":
+            cat_feats.append(feat)
+    return(cat_feats)
+
+def fill_cats(data):
+    ## Fill Missings with "Unknown"
+
+    #List of Categorical Features
+    cat_feats = get_cats(data)
+
+    #Filling Nans with "Unknown"
+    for feat in cat_feats:
+        miss_index = data[data[feat].isna()].index
+        data.loc[index, feat] = "Unknown"
+
+    return(data)
+
+def encoding_cats(data, train = True, train_data = None):
+    #getting cat_feats
+    cat_feats = get_cats(data)
+    lab_encoder = LabelEncoder()
+    if train:
+        for feat in cat_feats:
+            encoded_col = "{}_encoded".format(feat)
+            data[encoded_col] = lab_encoder.fit_transform(data[feat])
+    else:
+        for feat in cat_feats:
+            encoded_col = "{}_encoded".format(feat)
+            lab_encoder.fit(train_data[feat])
+            data[encoded_col] = lab_encoder.transform(data[feat])
+    return(data)
+
+#Convert Region_code and District_code to Categorical
+def to_category(data, to_cater):
+    for feat in to_cater:
+        data[feat] = data[feat].astype('category')
+    return(data)
 
 #~~~~~~~~~#
 
 if __name__ == "__main__":
 #Import Data
+
+# Drop the following columns before cleaning: funder, installer, recorded_by
+
+#Fix Dates
 
 #Order of Cleaning:
 #Step 1: Update Regions
