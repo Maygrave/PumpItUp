@@ -1,4 +1,7 @@
 # Pump it Up: A Cool Title on Tanzania
+
+The "Pump It Up" challenge was
+
 [Tanzania is divided](1) into 31 different *regions*, which themselves are then subdivided into *districts*. Districts are further subdivided into *divisions* and then into *wards*. Wards then have two types: *urban wards* which can be split into streets, and *rural wards* which can be split into villages.
 
 **Regions**

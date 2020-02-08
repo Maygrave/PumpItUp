@@ -10,14 +10,14 @@ import Settings as Sts
 #Defining Functions
 
 #EASY READ AND WRITE FUNCTIONS
-def read_train():
-    X_train = pd.read_csv("Data/Raw/Train.csv")
+def read_train(file = "Train.csv"):
+    X_train = pd.read_csv("Data/Raw/{}".format(file))
     return(X_train)
 
 def write(X_train, file = "Train1.csv"):
-    X_train.to_csv("Data/Processed/{}".format(file))
+    X_train.to_csv("Data/Processed/{}".format(file), index = False)
 
-##Regions
+#Regions
 def update_regions(data):
     #The location data for this set is pretty unreliable
     #I've updated the regions/discticts in the data based on the names of the wards in which the observations were located
@@ -27,22 +27,22 @@ def update_regions(data):
 
     #Add simiyu, geita, katavi, njombe regions
     ##Simiyu
-    simiyu_index = data[(data['region'] == 'Shinyanga') & ((data['lga'].isin(["Maswa","Meatu","Bariadi"]))].index
+    simiyu_index = data[(data['region'] == 'Shinyanga') & (data['lga'].isin(["Maswa","Meatu","Bariadi"]))].index
     data.loc[simiyu_index, 'region']  = "Simiyu"
     ##Geita
-    geita_index = data[((data['region'].isin(["Shinyanga", "Mwanza", 'Kagera']))) & ((data['lga'].isin(["Bukombe", "Chato", "Geita"]))].index
+    geita_index = data[(data['region'].isin(["Shinyanga", "Mwanza", 'Kagera'])) & (data['lga'].isin(["Bukombe", "Chato", "Geita"]))].index
     data.loc[geita_index, 'region'] = 'Geita'
     ##Katavi
     katavi_index = data[(data['region'] == "Rukwa") & (data['lga'] == "Mpanda")].index
     data.loc[katavi_index, 'region'] = 'Katavi'
     data.loc[katavi_index, 'lga'] = 'Mpanda Rural'
     ##Njombe
-    njombe_index = data[(data['region'] == 'Iringa') & ((data['lga'].isin(["Ludewa", "Njombe", "Makete"]))].index
+    njombe_index = data[(data['region'] == 'Iringa') & (data['lga'].isin(["Ludewa", "Njombe", "Makete"]))].index
     data.loc[njombe_index, 'region'] = "Njombe"
 
     #Fixing Mislabeled Regions/LGAS/Wards
     ##Creating the "Nyang'hwale" LGA in the Geita region
-    nyang_index = data[(data['region'] == 'Geita') & ((data['ward'].isin(["Nyang'hwale", 'Busolwa', 'Bukwimba', 'Mwingiro','Nyugwa','Kakora', 'Kharumwa','Shabaka','Kafita']))].index
+    nyang_index = data[(data['region'] == 'Geita') & (data['ward'].isin(["Nyang'hwale", 'Busolwa', 'Bukwimba', 'Mwingiro','Nyugwa','Kakora', 'Kharumwa','Shabaka','Kafita']))].index
     data.loc[nyang_index, 'lga'] = "Nyang'hwale"
 
     ##Creating Chemba District in Kidodoma
@@ -65,9 +65,9 @@ def update_regions(data):
     nyasa_index = data[(data['region'] == 'Ruvuma') & (data['lga'] == 'Mbinga') & (data['ward'].isin(['Lipingo', 'Liuli', 'Tingi', 'Chiwanda', 'Kingerikiti', 'Lituhi', 'Mbaha', 'Kihagara', 'Kilosa', 'Mtipwili', 'Mbamba bay']))].index
     data.loc[nyasa_index, 'lga'] = 'Nyasa'
 
-    #Moving Katumba to Keyla from Rungwe
+    #Moving Katumba to Kyela from Rungwe
     katumba_index = data[(data['region'] == 'Mbeya') & (data['ward'] == 'Katumba')].index
-    data.loc[katumba_index, 'lga'] = 'Keyla'
+    data.loc[katumba_index, 'lga'] = 'Kyela'
 
     #Creating the Mkalama district (split from Iramba in Singida in 2010) and the Ikungi (Split from Singida Rural in 2010)
     mkalama_index = data[(data['region'] == "Singida") & (data['lga'] == 'Iramba') & (data['ward'].isin(['Nduguti', 'Msingi', 'Nkinto', 'Mpambala', 'Kinyagiri', 'Mwanga', 'Gumanga', 'Ilunda', 'Ibaga', 'Iguguno']))].index
@@ -76,7 +76,7 @@ def update_regions(data):
     data.loc[ikungi_index, 'lga'] = 'Ikungi'
 
     #Creating Kaliua district in tabora region
-    kaliua_index = data[(data['region'] == 'Tabora') & (data['lga'] = 'Urambo') & (data['ward'].isin(['Ugunga', 'Igalala', 'Kanindo', 'Ushokola', 'Mwongozo', 'Igombe Mkulu', 'Kaliua', 'Ukumbisiganga', 'Kazaroho', 'Uyowa', 'Ichemba', 'Milambo', 'Usinge', 'Kashishi']))].index
+    kaliua_index = data[(data['region'] == 'Tabora') & (data['lga'] == 'Urambo') & (data['ward'].isin(['Ugunga', 'Igalala', 'Kanindo', 'Ushokola', 'Mwongozo', 'Igombe Mkulu', 'Kaliua', 'Ukumbisiganga', 'Kazaroho', 'Uyowa', 'Ichemba', 'Milambo', 'Usinge', 'Kashishi']))].index
     data.loc[kaliua_index, 'lga'] = 'Kaliua'
 
     #Creating the Kalambo district in the Rukwa region
@@ -86,11 +86,11 @@ def update_regions(data):
     #Creating the additional discticts in the Kigoma region
     kakonko_index = data[(data['region']=='Kigoma') & (data['lga'] == 'Kibondo') & (data['ward'].isin(['Muhange', 'Kasanda', 'Mugunzu', 'Kakonko', 'Rugenge', 'Gwanumpu', 'Nyabibuye', 'Nyamtukuza', 'Kasuga']))].index
     data.loc[kakonko_index, 'lga'] = 'Kakonko'
-    kusulu_index = data[(data['region'] == 'Kigoma') & (adta['lga'] == 'Kasulu') & (data['ward'].isin(['Msambara', 'Ruhita', 'Murufiti', 'Muhunga', 'Kigondo']))].index
-    dataa.loc[kusulu_index, 'lga'] = 'Kusulu Town'
-    buhigwe_index = data[(data['region'] == 'Kigoma') & (adta['lga'] == 'Kasulu') & (data['ward'].isin(['Munyegera', 'Buhigwe', 'Rusaba', 'Muhinda', 'Munzenze', 'Janda', 'Kilelema', 'Muyama']))].index
+    kusulu_index = data[(data['region'] == 'Kigoma') & (data['lga'] == 'Kasulu') & (data['ward'].isin(['Msambara', 'Ruhita', 'Murufiti', 'Muhunga', 'Kigondo']))].index
+    data.loc[kusulu_index, 'lga'] = 'Kusulu Town'
+    buhigwe_index = data[(data['region'] == 'Kigoma') & (data['lga'] == 'Kasulu') & (data['ward'].isin(['Munyegera', 'Buhigwe', 'Rusaba', 'Muhinda', 'Munzenze', 'Janda', 'Kilelema', 'Muyama']))].index
     data.loc[buhigwe_index, 'lga'] = 'Buhigwe'
-    uvinza_index = data[(data['region'] == 'Kigoma') & (adta['lga'] == 'Kigoma Rural') & (data['ward'].isin(['Sunuka', 'Mtego wa Noti', 'Mganza', 'Kandaga', 'Uvinza', 'Ilagala', 'Nguruka', 'Simbo']))].index
+    uvinza_index = data[(data['region'] == 'Kigoma') & (data['lga'] == 'Kigoma Rural') & (data['ward'].isin(['Sunuka', 'Mtego wa Noti', 'Mganza', 'Kandaga', 'Uvinza', 'Ilagala', 'Nguruka', 'Simbo']))].index
     data.loc[uvinza_index, 'lga'] = 'Uvinza'
 
     #Creating Kahama Town in Shinyanga
@@ -98,13 +98,13 @@ def update_regions(data):
     data.loc[kahama_index, 'lga'] = 'Kahama Town'
 
     #Creating Kyerwa in Kagera
-    kyewra_index = adta[(data['region'] == 'Kagera') & (data['lga'] == 'Karagwe') & (data['ward'].isin(['Kyerwa', 'Kaisho', 'Isingiro', 'Kamuli', 'Nkwenda', 'Murongo', 'Bugomora', 'Kibingo', 'Mabira', 'Kimuli']))].index
+    kyewra_index = data[(data['region'] == 'Kagera') & (data['lga'] == 'Karagwe') & (data['ward'].isin(['Kyerwa', 'Kaisho', 'Isingiro', 'Kamuli', 'Nkwenda', 'Murongo', 'Bugomora', 'Kibingo', 'Mabira', 'Kimuli']))].index
     data.loc[kyewra_index, 'lga'] = 'Kyerwa'
 
     #Moving Mwzana obs to simiyu
     busega_index = data[(data['region'] == 'Mwanza') & (data['lga'] == 'Magu') & (data['ward'].isin(['Kabita', 'Badugu', 'Mwananyili', 'Mkula', 'Nyaluhande', 'Kalemela', 'Malili', 'Shigala', 'Kiloleli', 'Ngasamo', 'Igalukilo']))].index
     data.loc[busega_index, 'lga'] = 'Busega'
-    data.loc[busega_index, 'region'] = 'Simmiyu'
+    data.loc[busega_index, 'region'] = 'Simiyu'
 
     #Moving obs to Nyamagana in Mwzana
     nyama_index = data[(data['region'] == "Mwanza") & (data['ward'].isin(['Mkolani', 'Butimba', 'Buhongwa']))].index
@@ -147,56 +147,83 @@ def update_regions(data):
     return(data)
 
 #Population
-def fill_pop(data, train_data):
-    #Filling the population values equal to 0
-    for i in range(data.shape[0]):
-        if data['population'][i] == 0:
-            #Getting the pop of the ward for the obs
-            region = data['region'][i]
-            dist = data['lga'][i]
-            ward_name = data['ward'][i]
-            pop = Sts.Geo_info[region][dist]['ward'][ward_name]
+def fill_pop(data, test = False, train_data = None):
+    #Creating a copy with only 0 pop values
+    data['Interped_pop'] = np.zeros(shape = data.shape[0])
+    df_tmp = data[data['population'] == 0].copy()
+    #Changing all "Interped_pop" values in the copied data frame to 1
+    df_tmp.loc[:,'Interped_pop'] = 1
 
+    for i in range(df_tmp.shape[0]):
+        region = df_tmp.iloc[i, df_tmp.columns.get_loc('region')]
+        dist = df_tmp.iloc[i, df_tmp.columns.get_loc('lga')]
+        ward_name = df_tmp.iloc[i, df_tmp.columns.get_loc('ward')]
+        try:
+            pop = Sts.Geo_info[region][dist]['ward'][ward_name]
             #Getting the number of wards in the Region/District
-            count = len(train_data[(train_data['region'] == region) & (train_data['lga'] == dist) & (train_data['ward'] == ward_name)])
+            if test:
+                count = len(train_data[(train_data['region'] == region) & (train_data['lga'] == dist) & (train_data['ward'] == ward_name)])
+            else:
+                count = len(df_tmp[(df_tmp['region'] == region) & (df_tmp['lga'] == dist) & (df_tmp['ward'] == ward_name)])
 
             #Population divided by the number of wells in the ward
             pop_ward = pop/count
-            #Set pop value to average pop and create flag for interpolated pop
-            data.loc[i, 'population'] = pop_ward
-            data['Interped_pop'] = True
-        else:
-            #Set Interped_pop flag to false
-            data['Interped_pop'] = False
+            df_tmp.iloc[i, df_tmp.columns.get_loc('population')] = pop_ward
+        except:
+            pop = Sts.Geo_info[region][dist]['Total_pop']
+            #Getting the number of wards in the Region/District
+            if test:
+                count = len(train_data[(train_data['region'] == region) & (train_data['lga'] == dist)])
+            else:
+                count = len(df_tmp[(df_tmp['region'] == region) & (df_tmp['lga'] == dist)])
+            #Population divided by the number of wells in the ward
+            pop_ward = pop/count
+            df_tmp.iloc[i, df_tmp.columns.get_loc('population')] = pop_ward
+
+    #Updating original data with the new pop values and flagged interped values
+    data.update(df_tmp)
+    return(data)
 
 #Amount_tsh
-def fill_amount_tsh(data, train_data):
+def fill_amount_tsh(data, test = False, train_data = None):
     #Filling based on the mean value of the Wards
     #if the ward is 0 then by the district
     #If district is 0 then leave 0, as these are far enough apart, I don't think they should be filled across regions
-    means_wards = train_data[train_data['amount_tsh'] > 0]['amount_tsh'].groupby([train_data['region'], train_data['lga'], train_data['ward']]).describe()
-    means_lga = train_data[train_data['amount_tsh'] > 0]['amount_tsh'].groupby([train_data['region'], train_data['lga']]).describe()
+    regions = data[data['amount_tsh'] > 0]['region'].unique()
+    #Setting up group object of means
+    #If training data was supplied:
+    if test:
+        means_wards = train_data[train_data['amount_tsh'] > 0]['amount_tsh'].groupby([train_data['region'], train_data['lga'], train_data['ward']]).describe()
+        means_lga = train_data[train_data['amount_tsh'] > 0]['amount_tsh'].groupby([train_data['region'], train_data['lga']]).describe()
+    else:
+        means_wards = data[data['amount_tsh'] > 0]['amount_tsh'].groupby([data['region'], data['lga'], data['ward']]).describe()
+        means_lga = data[data['amount_tsh'] > 0]['amount_tsh'].groupby([data['region'], data['lga']]).describe()
+
     for i in range(data.shape[0]):
-        if data['amount_tsh'][i] == 0:
-            try:
-                #Need the try, as there are entire regions with no amount_tsh values
-                #So these regions would raise a key error if passed to the group objects
-                if means_wards.loc[data['region'][i], data['lga'][i], data['ward'][i]][mean] != 0:
-                    data.loc[i, 'amount_tsh'] = means_wards.loc[data['region'][i], data['lga'][i], data['ward'][i]][mean]
-                elif means_lga.loc[data['region'][i], data['lga'][i]][mean] != 0:
-                        data.loc[i, 'amount_tsh'] = means_lga.loc[data['region'][i], data['lga'][i]][mean]
-                else:
-                    #Leave as zero when there are no observed values for the enntire District
-                    pass
-            except:
+        region = data['region'][i]
+        dist = data['lga'][i]
+        ward = data['ward'][i]
+        if data['region'][i] in regions:
+            if data['amount_tsh'][i] == 0:
                 try:
-                    if means_lga.loc[data['region'][i], data['lga'][i]][mean] != 0:
-                        data.loc[i, 'amount_tsh'] = means_lga.loc[data['region'][i], data['lga'][i]][mean]
+                    #Need the try, as there are entire regions with no amount_tsh values
+                    #So these regions would raise a key error if passed to the group objects
+                    if means_wards.loc[region, dist, ward]["mean"] != 0:
+                        data.loc[i, 'amount_tsh'] = means_wards.loc[region, dist, ward]["mean"]
+                    elif means_lga.loc[region, dist]["mean"] != 0:
+                            data.loc[i, 'amount_tsh'] = means_lga.loc[region, dist]["mean"]
                     else:
                         #Leave as zero when there are no observed values for the enntire District
                         pass
                 except:
-                    pass
+                    try:
+                        if means_lga.loc[region, dist]["mean"] != 0:
+                            data.loc[i, 'amount_tsh'] = means_lga.loc[region, dist]["mean"]
+                        else:
+                            #Leave as zero when there are no observed values for the enntire District
+                            pass
+                    except:
+                        pass
     return(data)
 
 #Lat and Long
@@ -218,10 +245,12 @@ def fill_lat_long(data, long_flag, lat_flag):
 #Date vars
 def as_dates(data):
     data.date_recorded = pd.to_datetime(data.date_recorded)
+    return(data)
 
 #Drop unwanted columns
 def drop_cols(data, drop_list):
     data.drop(axis = 1, columns = drop_list, inplace = True)
+    return(data)
 
 #Categorical Features:
 def get_cats(data):
@@ -242,7 +271,7 @@ def fill_cats(data):
     #Filling Nans with "Unknown"
     for feat in cat_feats:
         miss_index = data[data[feat].isna()].index
-        data.loc[index, feat] = "Unknown"
+        data.loc[miss_index, feat] = "Unknown"
 
     return(data)
 
@@ -250,10 +279,16 @@ def encoding_cats(data, train = True, train_data = None):
     #getting cat_feats
     cat_feats = get_cats(data)
     lab_encoder = LabelEncoder()
+    #Label encoding when working with training data
+    #When train = True, no need for train_data
     if train:
         for feat in cat_feats:
+            print(feat)
             encoded_col = "{}_encoded".format(feat)
+            print(encoded_col)
             data[encoded_col] = lab_encoder.fit_transform(data[feat])
+    #Since I want to fit the testing data based on the training data fit
+    #Now need the train_data param
     else:
         for feat in cat_feats:
             encoded_col = "{}_encoded".format(feat)
@@ -263,26 +298,73 @@ def encoding_cats(data, train = True, train_data = None):
 
 #Convert Region_code and District_code to Categorical
 def to_category(data, to_cater):
+    add_to_cater = get_cats(data)
+    to_cater = to_cater.append(add_to_cater)
     for feat in to_cater:
         data[feat] = data[feat].astype('category')
     return(data)
 
+#Final Functions:
+##Training
+def clean_train():
+    print("Cleaning Training Data")
+    #Import Data
+    X_train = read_train()
+    print("Data Imported Successfully")
+    # Drop the following columns before cleaning: funder, installer, recorded_by, num_private
+    X_train = drop_cols(X_train, ['funder', 'installer', 'recorded_by', 'num_private'])
+    print("Columns Dropped")
+    ##Order of Cleaning:
+    ##Step 1: Update Regions
+    X_train = update_regions(X_train)
+    print("Regions Updated")
+    ##Step 2: Fill Numerical Missings
+    X_train = fill_amount_tsh(X_train)
+    X_train = fill_pop(X_train)
+    print("Numerical features filled")
+    ##Step 3: Fill Lat/Long
+    X_train = fill_lat_long(X_train, 0, -2.000000e-08)
+    print("Latitude/longitude updated")
+    ##Step 4: Handle Categorical Missings
+    X_train = fill_cats(X_train)
+    #X_train = encoding_cats(X_train)
+    #X_train = to_category(X_train, ['region_code', 'district_code'])
+    print("Categorical Variables Handled")
+    ##Save Data
+    write(X_train)
+    print("Training data written")
+
+def clean_test():
+    print("Cleaning the Testing Data:")
+    #Import Data
+    X_test = read_train("Test.csv")
+    train_data = pd.read_csv("Data/Processed/Train1.csv")
+    print("Data Imported Successfully")
+    # Drop the following columns before cleaning: funder, installer, recorded_by, num_private
+    X_test = drop_cols(X_test, ['funder', 'installer', 'recorded_by', 'num_private'])
+    print("Columns Dropped")
+    ##Order of Cleaning:
+    ##Step 1: Update Regions
+    X_test = update_regions(X_test)
+    print("Regions Updated")
+    ##Step 2: Fill Numerical Missings
+    X_test = fill_amount_tsh(X_test, test = True, train_data = train_data)
+    X_test = fill_pop(X_test, test = True, train_data = train_data)
+    print("Numerical Values Filled")
+    ##Step 3: Fill Lat/Long
+    X_test = fill_lat_long(X_test, 0, -2.000000e-08)
+    print("Latitude/Logitude Updated")
+    ##Step 4: Handle Categorical Missings
+    X_test = fill_cats(X_test)
+    #X_test = encoding_cats(data = X_test, train = False, train_data = train_data)
+    #X_test = to_category(X_test, ['region_code', 'district_code'])
+    print("Categorical variables handled")
+    ##Save Data
+    write(X_test, "Test1.csv")
+    print("Test data written")
 #~~~~~~~~~#
 
 if __name__ == "__main__":
-#Import Data
-
-# Drop the following columns before cleaning: funder, installer, recorded_by
-
-#Fix Dates
-
-#Order of Cleaning:
-#Step 1: Update Regions
-
-#Step 2: Fill Numerical Missings
-
-#Step 3: Fill Lat/Long
-
-#Step 4: Handle Categorical Missings
-
-#Save Data
+#Training data
+    clean_train()
+    clean_test()
