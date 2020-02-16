@@ -226,6 +226,52 @@ def fill_amount_tsh(data, test = False, train_data = None):
                         pass
     return(data)
 
+#Construction year
+def fill_construction_year(data, test = False, train_data = None):
+    #Filling based on the mean value of the Wards
+    #if the ward is 0 then by the district
+    #If district is 0 then leave 0, as these are far enough apart, I don't think they should be filled across regions
+    regions = data[data['construction_year'] > 0]['region'].unique()
+    #Setting up group object of means
+    #If training data was supplied:
+    if test:
+        means_wards = train_data[train_data['construction_year'] > 0]['construction_year'].groupby([train_data['region'], train_data['lga'], train_data['ward']]).describe()
+        means_lga = train_data[train_data['construction_year'] > 0]['construction_year'].groupby([train_data['region'], train_data['lga']]).describe()
+        mean_overall = int(train_data[train_data['construction_year'] > 0]['construction_year'].mean())
+    else:
+        means_wards = data[data['construction_year'] > 0]['construction_year'].groupby([data['region'], data['lga'], data['ward']]).describe()
+        means_lga = data[data['construction_year'] > 0]['construction_year'].groupby([data['region'], data['lga']]).describe()
+        mean_overall = int(data[data['construction_year'] > 0]['construction_year'].mean())
+
+    for i in range(data.shape[0]):
+        region = data['region'][i]
+        dist = data['lga'][i]
+        ward = data['ward'][i]
+        if data['construction_year'][i] == 0:
+            if data['region'][i] in regions:
+                try:
+                    #Need the try, as there are entire regions with no amount_tsh values
+                    #So these regions would raise a key error if passed to the group objects
+                    if means_wards.loc[region, dist, ward]["mean"] != 0:
+                        data.loc[i, 'construction_year'] = means_wards.loc[region, dist, ward]["mean"]
+                    elif means_lga.loc[region, dist]["mean"] != 0:
+                            data.loc[i, 'construction_year'] = means_lga.loc[region, dist]["mean"]
+                    else:
+                        data.loc[i, 'construction_year'] = mean_overall
+                except:
+                    try:
+                        if means_lga.loc[region, dist]["mean"] != 0:
+                            data.loc[i, 'construction_year'] = means_lga.loc[region, dist]["mean"]
+                        else:
+                            data.loc[i, 'construction_year'] = mean_overall
+                    except:
+                        data.loc[i, 'construction_year'] = mean_overall
+            else:
+                data.loc[i, 'construction_year'] = mean_overall
+    data['construction_year'] = data['construction_year'].astype("int64")
+
+    return(data)
+
 #Lat and Long
 def fill_lat_long(data, long_flag, lat_flag):
     #This function will fill the flagged lats/longs
@@ -321,6 +367,7 @@ def clean_train():
     ##Step 2: Fill Numerical Missings
     X_train = fill_amount_tsh(X_train)
     X_train = fill_pop(X_train)
+    X_train = fill_construction_year(X_train)
     print("Numerical features filled")
     ##Step 3: Fill Lat/Long
     X_train = fill_lat_long(X_train, 0, -2.000000e-08)
@@ -350,6 +397,7 @@ def clean_test():
     ##Step 2: Fill Numerical Missings
     X_test = fill_amount_tsh(X_test, test = True, train_data = train_data)
     X_test = fill_pop(X_test, test = True, train_data = train_data)
+    X_test = fill_construction_year(X_test, test = True, train_data = train_data)
     print("Numerical Values Filled")
     ##Step 3: Fill Lat/Long
     X_test = fill_lat_long(X_test, 0, -2.000000e-08)
