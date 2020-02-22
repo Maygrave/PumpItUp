@@ -1,0 +1,2 @@
+-Drop Outliers
+-Check region_code in Tableau before updating supposed "typo" values

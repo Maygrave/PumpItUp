@@ -1,7 +1,8 @@
 import os
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from scipy.stats import loggamma
 
 from Keys import access_token
 import Settings as Sts
@@ -227,47 +228,112 @@ def fill_amount_tsh(data, test = False, train_data = None):
     return(data)
 
 #Construction year
-def fill_construction_year(data, test = False, train_data = None):
-    #Filling based on the mean value of the Wards
-    #if the ward is 0 then by the district
-    #If district is 0 then leave 0, as these are far enough apart, I don't think they should be filled across regions
+def fill_construction_year(data, train_data = None):
+    #Here I'll imput the construction year using two seperate methods
+    #1 - If there are ANY non-zero values in the ward or district of interest (I'll check that on the region level)
+        #Then I'll fill using the mean of the most granular location information avaliable
+    #2 - If there are ONLY zero observations for the entire region, I'll fit a loggamma dist to the data (or training data)
+        #And then use a randomly generated imputation value
+
     regions = data[data['construction_year'] > 0]['region'].unique()
-    #Setting up group object of means
-    #If training data was supplied:
-    if test:
+    #If training data was supplied (ie, imputing test data):
+    if train_data is not None:
         means_wards = train_data[train_data['construction_year'] > 0]['construction_year'].groupby([train_data['region'], train_data['lga'], train_data['ward']]).describe()
         means_lga = train_data[train_data['construction_year'] > 0]['construction_year'].groupby([train_data['region'], train_data['lga']]).describe()
-        mean_overall = int(train_data[train_data['construction_year'] > 0]['construction_year'].mean())
+        min_val = min(train_data[train_data['construction_year'] > 0]['construction_year'])
+        max_val = max(train_data[train_data['construction_year'] > 0]['construction_year'])
+
+        #Creating scaled data for loggamma imputation
+        stdscal = StandardScaler()
+        ints = get_nums(train_data)
+        scaled_data = stdscal.fit_transform(train_data[ints])
+        #np array of construction year
+        index = [i for i,x in enumerate(ints) if x == 'construction_year']
+        a = np.asarray(scaled_data[index[0]], np.float)
+        #parameters and x for loggamma imputation
+        params = loggamma.fit(a)
+        x = np.linspace(loggamma.ppf(0.01, params[1]),
+              loggamma.ppf(0.99, params[1]), 100)
+
+    #If working on training data directly
     else:
         means_wards = data[data['construction_year'] > 0]['construction_year'].groupby([data['region'], data['lga'], data['ward']]).describe()
         means_lga = data[data['construction_year'] > 0]['construction_year'].groupby([data['region'], data['lga']]).describe()
-        mean_overall = int(data[data['construction_year'] > 0]['construction_year'].mean())
+        min_val = min(data[data['construction_year'] > 0]['construction_year'])
+        max_val = max(data[data['construction_year'] > 0]['construction_year'])
 
+        #Creating scaled data for loggamma imputation
+        stdscal = StandardScaler()
+        ints = get_nums(data)
+        scaled_data = stdscal.fit_transform(data[ints])
+        #np array of construction year
+        index = [i for i,x in enumerate(ints) if x == 'construction_year']
+        a = np.asarray(scaled_data[index[0]], np.float)
+        #parameters and x for loggamma imputation
+        params = loggamma.fit(a)
+        x = np.linspace(loggamma.ppf(0.01, params[1]),
+              loggamma.ppf(0.99, params[1]), 100)
+
+    #Imputation
     for i in range(data.shape[0]):
         region = data['region'][i]
         dist = data['lga'][i]
         ward = data['ward'][i]
         if data['construction_year'][i] == 0:
+            #Imputing regions where there is at least one non-zero observation
             if data['region'][i] in regions:
+
+                #Using try, as there are wards which are blank in non-zero regions
+                #So these regions would raise a key error if passed to the group objects
                 try:
-                    #Need the try, as there are entire regions with no amount_tsh values
-                    #So these regions would raise a key error if passed to the group objects
                     if means_wards.loc[region, dist, ward]["mean"] != 0:
                         data.loc[i, 'construction_year'] = means_wards.loc[region, dist, ward]["mean"]
                     elif means_lga.loc[region, dist]["mean"] != 0:
                             data.loc[i, 'construction_year'] = means_lga.loc[region, dist]["mean"]
                     else:
                         data.loc[i, 'construction_year'] = mean_overall
+
+                #If the ward was blank, fill on the district
                 except:
                     try:
                         if means_lga.loc[region, dist]["mean"] != 0:
                             data.loc[i, 'construction_year'] = means_lga.loc[region, dist]["mean"]
                         else:
                             data.loc[i, 'construction_year'] = mean_overall
+                    #Again, there may be blank districts in a non-zero region
+                    #If so, fill using the loggamma estimate from the all-zero region imputation method below
                     except:
-                        data.loc[i, 'construction_year'] = mean_overall
+                        fake_data = np.zeros(len(ints))
+                        index = [i for i,x in enumerate(ints) if x == 'construction_year']
+                        fake_data[index[0]] = loggamma.rvs(*params)
+                        imput = stdscal.inverse_transform(fake_data)[index[0]]
+                        if imput < min(data[data['construction_year'] > 0]['construction_year']):
+                            data.loc[i, 'construction_year'] = min(data[data['construction_year'] > 0]['construction_year'])
+                        elif imput > max(data[data['construction_year'] > 0]['construction_year']):
+                            data.loc[i, 'construction_year'] = max(data[data['construction_year'] > 0]['construction_year'])
+                        else:
+                            data.loc[i, 'construction_year'] = imput
+
+            #Imputing for regions which have no observations
+            #Using a loggamma dist
             else:
-                data.loc[i, 'construction_year'] = mean_overall
+                #Since the standard scaler was scaled on 10 features, I need to in_verse transform on ten features as well
+                #I only care about the construction_year, so I'll leave the rest as zeros
+                fake_data = np.zeros(len(ints))
+                #Provides the index of the construction_year in the 'ints' var
+                fake_data[index[0]] = loggamma.rvs(*params)
+                #imput value, generated under a loggamma dist, transformed back into the original space
+                imput = stdscal.inverse_transform(fake_data)[index[0]]
+
+                #Loggamma extends past the range of the data, so I'll limit the range of acceptable imputations using the min and max of the training data
+                if imput < min_val:
+                    data.loc[i, 'construction_year'] = min_val
+                elif imput > max_val:
+                    data.loc[i, 'construction_year'] = max_val
+                else:
+                    data.loc[i, 'construction_year'] = imput
+
+
     data['construction_year'] = data['construction_year'].astype("int64")
 
     return(data)
@@ -286,6 +352,31 @@ def fill_lat_long(data, long_flag, lat_flag):
 
         if data.loc[i, 'longitude'] == long_flag:
             data.loc[i, 'longitude'] = means_long[region]
+    return(data)
+
+#Source_class
+def fill_source_class(data, train_data = None):
+    if train_data is not None:
+        #Setting grroup object on the training data
+        most_freq_ward = train_data["source_class"].groupby(train_data['ward']).describe()
+        most_freq_lga = train_data["source_class"].groupby(train_data['lga']).describe()
+
+    else:
+        #Setting group object on the main data
+        most_freq_ward = data["source_class"].groupby(data['ward']).describe()
+        most_freq_lga = data["source_class"].groupby(data['lga']).describe()
+
+    #Creating a temporary data frame for only the source_class observation with "unknown"
+    df_tmp = data[data["source_class"] == 'unknown'].copy()
+
+    for i in range(df_tmp.shape[0]):
+        if most_freq_ward.loc[df_tmp.iloc[i, df_tmp.columns.get_loc('ward')]]['top'] == "unknown":
+            df_tmp.iloc[i, df_tmp.columns.get_loc('source_class')] = most_freq_lga.loc[df_tmp.iloc[i, df_tmp.columns.get_loc('lga')]]['top']
+        else:
+            df_tmp.iloc[i, df_tmp.columns.get_loc('source_class')] = most_freq_ward.loc[df_tmp.iloc[i, df_tmp.columns.get_loc('ward')]]['top']
+
+    #updating the original data with the new values from the temporary data frame
+    data.update(df_tmp)
     return(data)
 
 #Date vars
@@ -307,6 +398,14 @@ def get_cats(data):
         if data[feat].dtype == "object":
             cat_feats.append(feat)
     return(cat_feats)
+
+def get_nums(data):
+    #List of Numerical Features
+    num_feats = []
+    for feat in data.dtypes.index:
+        if data[feat].dtype == "float64" or data[feat].dtype == "int64":
+            num_feats.append(feat)
+    return(num_feats)
 
 def fill_cats(data):
     ## Fill Missings with "Unknown"
@@ -368,6 +467,7 @@ def clean_train():
     X_train = fill_amount_tsh(X_train)
     X_train = fill_pop(X_train)
     X_train = fill_construction_year(X_train)
+    X_train = fill_source_class(X_train)
     print("Numerical features filled")
     ##Step 3: Fill Lat/Long
     X_train = fill_lat_long(X_train, 0, -2.000000e-08)
@@ -397,7 +497,8 @@ def clean_test():
     ##Step 2: Fill Numerical Missings
     X_test = fill_amount_tsh(X_test, test = True, train_data = train_data)
     X_test = fill_pop(X_test, test = True, train_data = train_data)
-    X_test = fill_construction_year(X_test, test = True, train_data = train_data)
+    X_test = fill_construction_year(X_test, train_data = train_data)
+    X_test = fill_source_class(X_test, train_data = train_data)
     print("Numerical Values Filled")
     ##Step 3: Fill Lat/Long
     X_test = fill_lat_long(X_test, 0, -2.000000e-08)
