@@ -49,7 +49,7 @@ def write(X_train):
 
 #~~~~~#
 
-if __name__ = "__main__":
+if __name__ == "__main__":
     access_token = access_token
 
     #Updating the Traning set
@@ -58,4 +58,3 @@ if __name__ = "__main__":
     X_train['well_elevations'] = get_elevation_series(X_train['latitude'], X_train['longitude'], access_token)
 
     #Updating the Testing set
-    
